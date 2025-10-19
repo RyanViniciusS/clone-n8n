@@ -8,5 +8,10 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
-    }
+        autoSignIn: true
+    },
+        trustedOrigins: [
+        "http://localhost:3000",
+        "http://192.168.2.6:3000", // sua máquina na rede
+    ]
 });
