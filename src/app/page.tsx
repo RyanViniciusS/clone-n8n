@@ -19,6 +19,9 @@ const Dashboard = () => {
       onSuccess: () => {
         toast.success("Workflow creation event sent to Inngest");
       },
+      onError: () => {
+        toast.error("Failed to send workflow creation event");
+      },
     })
   );
 
