@@ -10,12 +10,11 @@ export const appRouter = createTRPCRouter({
   }),
 
   testAi: protectedProcedure.mutation(async () => {
-    const { text } = await generateText({
-      model: google('gemini-2.5-flash'),
-      prompt: 'quem descobriu o brasil?',
+    await inngest.send({
+      name: 'execute/ai',
+      data: {},
     });
-
-    return { text };
+    return { success: true, message: 'AI execution event sent to Inngest' };
   }),
 
   createWorkflow: protectedProcedure.mutation(async () => {
