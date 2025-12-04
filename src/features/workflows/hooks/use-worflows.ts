@@ -1,10 +1,12 @@
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { userWorkglowsParms } from "./use-worflows-params";
 
 export const useSupenseWorkflows = () => {
     const trpc = useTRPC();
-    return useSuspenseQuery(trpc.worflows.getMany.queryOptions() // passa undefined como input
+    const [params] = userWorkglowsParms()
+    return useSuspenseQuery(trpc.worflows.getMany.queryOptions(params) // passa undefined como input
     );
 }
 
@@ -15,7 +17,7 @@ export const userCreateWorflow = () => {
         onSuccess: (data) => {
             toast.success(`worflow ${data.name} created`)
             queryClient.invalidateQueries(
-                trpc.worflows.getMany.queryOptions()
+                trpc.worflows.getMany.queryOptions({})
             )
         },
         onError: (error) => {
