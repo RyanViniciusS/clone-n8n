@@ -52,47 +52,52 @@ export const workflowsRouter = createTRPCRouter({
     getMany: protectedProcedure
         .input(z.object({
             page: z.number().default(PAGINATION.DEFALT_PAGE),
-            pageSize: z.number().min(PAGINATION.MIN_PAGE_SIZE)
+            pageSize: z.number()
+                .min(PAGINATION.MIN_PAGE_SIZE)
                 .max(PAGINATION.MAX_PAGE_SIZE)
                 .default(PAGINATION.DEFALT_PAGE_SIZE),
-            search: z.string().default("")
-
+            search: z.string().default(""),
         }))
         .query(async ({ ctx, input }) => {
             const { page, pageSize, search } = input;
+
+            const baseWhere = {
+                userId: ctx.auth.user.id,
+                ...(search
+                    ? {
+                        name: {
+                            contains: search,
+                        },
+                    }
+                    : {}),
+            };
 
             const [items, totalCount] = await Promise.all([
                 prisma.workflow.findMany({
                     skip: (page - 1) * pageSize,
                     take: pageSize,
-                    where: {
-                        userId: ctx.auth.user.id, name: {
-                            contains: search || '',
-                            mode: "insensitive",
-                        } as any,
-                    },
+                    where: baseWhere,
                     orderBy: {
                         updatedAt: "desc",
-                    }
+                    },
                 }),
                 prisma.workflow.count({
-                    where: {
-                        userId: ctx.auth.user.id
-                    }
-                })
+                    where: baseWhere,
+                }),
             ]);
+
             const totalPages = Math.ceil(totalCount / pageSize);
             const hasNextPage = page < totalPages;
             const hasPreviousPage = page > 1;
 
             return {
-                items: items,
+                items,
                 page,
                 pageSize,
                 totalCount,
                 totalPages,
                 hasNextPage,
-                hasPreviousPage
-            }
+                hasPreviousPage,
+            };
         }),
 });
