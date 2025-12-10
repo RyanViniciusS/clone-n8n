@@ -1,0 +1,10 @@
+{
+  "printWidth": 80,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "semi": true,
+  "arrowParens": "always",
+  "jsxBracketSameLine": false,
+  "bracketSameLine": false,
+  "proseWrap": "always"
+}

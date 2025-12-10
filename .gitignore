@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+# Prisma DB
+prisma/prisma/dev.db
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# Sentry Config File
+.env.sentry-build-plugin
