@@ -43,3 +43,28 @@ export const useRemoveWorflow = () => {
     })
   );
 };
+
+export const useSupenseWorkflow = (id: string) => {
+  const trpc = useTRPC();
+  return useSuspenseQuery(
+    trpc.worflows.getOne.queryOptions({ id }) // passa undefined como input
+  );
+};
+
+
+export const userUpdateWorflowName = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+  return useMutation(
+    trpc.worflows.updateName.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`worflow ${data.name} updated`);
+        queryClient.invalidateQueries(trpc.worflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries(trpc.worflows.getOne.queryOptions({ id: data.id }));
+      },
+      onError: (error) => {
+        toast.error(`falied to update worflow: ${error.message}`);
+      },
+    })
+  );
+};
