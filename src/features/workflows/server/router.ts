@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { createTRPCRouter, premiunProcedure, protectedProcedure } from "@/trpc/init";
 import { z } from "zod";
 import { PAGINATION } from "@/config/constants";
+import { NodeType } from "@/generated/prisma";
 
 export const workflowsRouter = createTRPCRouter({
   create: premiunProcedure.mutation(async ({ ctx }) => {
@@ -10,6 +11,14 @@ export const workflowsRouter = createTRPCRouter({
       data: {
         name: generateSlug(3, { format: "title" }),
         userId: ctx.auth.user.id,
+        nodes: {
+          create: {
+            name: NodeType.INITIAL,
+            type: NodeType.INITIAL,
+            position: { x: 250, y: 100 },
+            
+          }
+        }
       },
     });
   }),
@@ -56,10 +65,10 @@ export const workflowsRouter = createTRPCRouter({
         userId: ctx.auth.user.id,
         ...(search
           ? {
-              name: {
-                contains: search,
-              },
-            }
+            name: {
+              contains: search,
+            },
+          }
           : {}),
       };
 

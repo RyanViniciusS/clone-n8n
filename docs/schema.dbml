@@ -1,0 +1,133 @@
+Project workflow_app {
+  database_type: "PostgreSQL"
+}
+
+/* =========================
+   ENUMS
+========================= */
+Enum NodeType {
+  INITIAL
+}
+
+/* =========================
+   TABLES
+========================= */
+
+Table user {
+  id string [pk]
+  name string
+  email string [unique]
+  emailVerified boolean [default: false]
+  image string [null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+
+  Note: "Users of the system"
+}
+
+Table session {
+  id string [pk]
+  expiresAt timestamp
+  token string [unique]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  ipAddress string [null]
+  userAgent string [null]
+  userId string
+
+  Note: "User sessions"
+}
+
+Table account {
+  id string [pk]
+  accountId string
+  providerId string
+  userId string
+  accessToken string [null]
+  refreshToken string [null]
+  idToken string [null]
+  accessTokenExpiresAt timestamp [null]
+  refreshTokenExpiresAt timestamp [null]
+  scope string [null]
+  password string [null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+
+  Note: "OAuth / credential accounts"
+}
+
+Table verification {
+  id string [pk]
+  identifier string
+  value string
+  expiresAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+
+  Note: "Verification tokens (email, password reset, etc)"
+}
+
+Table workflow {
+  id string [pk]
+  name string
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+
+  userId string
+  accountId string [null]
+
+  Note: "Workflow definitions"
+}
+
+Table node {
+  id string [pk]
+  workflowId string
+  name string
+  type NodeType
+  position json
+  data json [default: "{}"]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+
+  Note: "Workflow nodes"
+}
+
+Table connection {
+  id string [pk]
+  workflowId string
+
+  fromNodeId string
+  toNodeId string
+
+  fromOutput string [default: "main"]
+  toInput string [default: "main"]
+
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+
+  Indexes {
+    (fromNodeId, toNodeId, fromOutput, toInput) [unique]
+  }
+
+  Note: "Connections between nodes"
+}
+
+/* =========================
+   RELATIONSHIPS
+========================= */
+
+Ref: session.userId > user.id [delete: cascade]
+
+Ref: account.userId > user.id [delete: cascade]
+
+Ref: workflow.userId > user.id [delete: cascade]
+
+Ref: workflow.accountId > account.id
+
+Ref: node.workflowId > workflow.id [delete: cascade]
+
+Ref: connection.workflowId > workflow.id [delete: cascade]
+
+Ref: connection.fromNodeId > node.id [delete: cascade]
+
+Ref: connection.toNodeId > node.id [delete: cascade]
